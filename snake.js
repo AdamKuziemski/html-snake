@@ -4,14 +4,15 @@ const tileSideLength = 20;
 const tileMargin = 2;
 const startingSpeed = 8;
 const maxSpeed = 20;
+const canvas = document.getElementById('gc');
+const context = canvas.getContext('2d');
 
-let loop = -1;
-let canvas = document.getElementById('gc');
-let context = canvas.getContext('2d');
+let loopHandle = -1;
+let paused = false;
 
 function newLoop(speed) {
-  clearInterval(loop);
-  loop = setInterval(game, 1000 / speed);
+  clearInterval(loopHandle);
+  loopHandle = setInterval(game, 1000 / speed);
 }
 
 class Coords {
@@ -201,6 +202,10 @@ let apple = new Apple();
 let snake = new Snake();
 
 function game() {
+  if (paused) {
+    return;
+  }
+
   snake.move();
 
   context.fillStyle = 'black';
@@ -215,4 +220,10 @@ function game() {
   apple.draw();
 }
 
-document.addEventListener('keydown', event => snake.changeDirection(event));
+document.addEventListener('keydown', event => {
+  if (event.code === 'Space') {
+    paused = !paused;
+  } else {
+    snake.changeDirection(event);
+  }
+});
