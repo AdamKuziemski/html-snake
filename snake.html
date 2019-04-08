@@ -1,7 +1,29 @@
-<canvas id="gc" width="600" height="600"></canvas>
-<div id="score"></div>
-<div id="highscore"></div>
-<button onclick="score.clearHighScore()">Reset high score</button>
+<div class="game">
+    <canvas id="gc" width="600" height="600"></canvas>
+
+    <div>
+        <div id="score"></div>
+        <div id="highscore"></div>
+        
+        <button onclick="score.clearHighScore()">Reset high score</button>
+
+        <p>Press arrow keys to move the snake.</p>
+        <p>Press space to pause the game.</p>
+    </div>
+</div>
 
 <script type="text/javascript" src="./snake.js"></script>
 <!-- <script type="text/javascript" src="./original.js"></script> -->
+
+<style>
+    .game {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 600px auto;
+        grid-column-gap: 32px;
+    }
+
+    button {
+        margin-top: 16px;
+    }
+</style>
