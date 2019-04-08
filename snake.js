@@ -167,7 +167,7 @@ class Scoreboard {
   }
 
   increaseScore() {
-    this.score++;
+    this.score += 10;
     this.draw();
   }
 
