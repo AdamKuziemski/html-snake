@@ -3,42 +3,15 @@ const lastTile = tilesOnCanvas - 1;
 const tileSideLength = 20;
 const tileMargin = 2;
 const startingSpeed = 8;
-const maxSpeed = 16.6;
+const maxSpeed = 20;
 
 let loop = -1;
 let canvas = document.getElementById('gc');
 let context = canvas.getContext('2d');
-let scoreboard = [
-  document.getElementById('score'),
-  document.getElementById('highscore'),
-];
-
-let highScore = parseInt(localStorage.getItem('highScore') || '0', 10);
-
-function drawTile(tile) {
-  context.fillRect(
-    tile.x * tileSideLength,
-    tile.y * tileSideLength,
-    tileSideLength - tileMargin,
-    tileSideLength - tileMargin
-  );
-}
 
 function newLoop(speed) {
   clearInterval(loop);
   loop = setInterval(game, 1000 / speed);
-}
-
-function displayScore(score) {
-  scoreboard[0].textContent = `Score: ${score}`;
-  scoreboard[1].textContent = `Highest score: ${highScore}`;
-}
-
-function updateHighScore(score) {
-  if (score > highScore) {
-    highScore = score;
-    localStorage.setItem('highScore', '' + highScore);
-  }
 }
 
 class Coords {
@@ -49,6 +22,15 @@ class Coords {
 
   collidesWith(otherCoords) {
     return this.x === otherCoords.x && this.y === otherCoords.y;
+  }
+
+  draw() {
+    context.fillRect(
+      this.x * tileSideLength,
+      this.y * tileSideLength,
+      tileSideLength - tileMargin,
+      tileSideLength - tileMargin
+    );
   }
 }
 
@@ -64,20 +46,19 @@ class Snake {
   }
 
   collidesWith(apple) {
-    return this.trail.filter(block => block.collidesWith(apple.position)).length !== 0;
+    return this.trail.filter(block => block.collidesWith(apple.tile)).length !== 0;
   }
 
   eatApple() {
     this.length++;
-    this.score++;
     this.speed += 0.4;
 
     if (this.speed >= maxSpeed) {
       this.speed = maxSpeed;
     }
-
+    
+    score.increaseScore();
     newLoop(this.speed);
-    displayScore(this.score);
   }
 
   changeDirection(event) {
@@ -133,10 +114,9 @@ class Snake {
     context.fillStyle = 'lime';
 
     this.trail.forEach(block => {
-      drawTile(block);
+      block.draw();
 
       if (block.collidesWith(this.head)) {
-        updateHighScore(this.score);
         this.reset();
       }
     });
@@ -150,32 +130,73 @@ class Snake {
 
   reset() {
     this.length = 5;
-    this.score = 0;
     this.speed = startingSpeed;
 
     newLoop(this.speed);
-    displayScore(this.score);
+    score.reset();
   }
 };
 
 class Apple {
   constructor() {
-    this.position = new Coords(15, 15);
+    this.tile = new Coords(15, 15);
   }
 
   replace() {
     while (snake.collidesWith(this)) { // prevent spawning apples on the snake
-      this.position.x = Math.floor(Math.random() * tilesOnCanvas);
-      this.position.y = Math.floor(Math.random() * tilesOnCanvas);
+      this.tile.x = Math.floor(Math.random() * tilesOnCanvas);
+      this.tile.y = Math.floor(Math.random() * tilesOnCanvas);
     }
   }
 
   draw() {
     context.fillStyle = 'red';
-    drawTile(this.position);
+    this.tile.draw();
   }
 }
 
+class Scoreboard {
+  constructor() {
+    this.board = [
+      document.getElementById('score'),
+      document.getElementById('highscore')
+    ];
+    this.score = 0;
+    this.highScore = parseInt(localStorage.getItem('highScore') || '0', 10);
+  }
+
+  increaseScore() {
+    this.score++;
+    this.draw();
+  }
+
+  draw() {
+    this.board[0].textContent = `Score: ${this.score}`;
+    this.board[1].textContent = `Highest score: ${this.highScore}`;
+  }
+
+  reset() {
+    this.saveHighScore();
+    this.score = 0;
+    this.draw();
+  }
+
+  saveHighScore() {
+    if (this.score > this.highScore) {
+      this.highScore = this.score;
+      localStorage.setItem('highScore', '' + this.highScore);
+    }
+    this.draw();
+  }
+
+  clearHighScore() {
+    this.highScore = 0;
+    localStorage.setItem('highScore', '0');
+    this.draw();
+  }
+}
+
+let score = new Scoreboard();
 let apple = new Apple();
 let snake = new Snake();
 
