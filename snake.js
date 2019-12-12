@@ -188,10 +188,12 @@ class Scoreboard {
   saveHighScore() {
     if (this.score > this.highScore) {
       this.highScore = this.score;
-      this.highScoreOwner = prompt(`What's your name?`, this.highScoreOwner);
-
       localStorage.setItem('highScore', '' + this.highScore);
-      localStorage.setItem('highScoreOwner', '' + this.highScoreOwner);
+
+      this.highScoreOwner = prompt(`What's your name?`, this.highScoreOwner);
+      if (!!this.highScoreOwner) {
+        localStorage.setItem('highScoreOwner', '' + this.highScoreOwner);
+      }
     }
     this.draw();
   }
