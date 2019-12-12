@@ -1,29 +1,58 @@
-<div class="game">
-    <canvas id="gc" width="600" height="600"></canvas>
+<html>
 
-    <div>
-        <div id="score"></div>
-        <div id="highscore"></div>
-        
-        <button onclick="score.clearHighScore()">Reset high score</button>
+<head>
+    <title>S</title>
+</head>
 
-        <p>Press arrow keys to move the snake.</p>
-        <p>Press space to pause the game.</p>
+<body>
+    <div class="game">
+        <canvas id="gc" width="600" height="600"></canvas>
+
+        <div>
+            <div id="score"></div>
+            <div id="highscore"></div>
+
+            <button onclick="score.clearHighScore()">Reset high score</button>
+
+            <div>Press arrow keys to move the snake.</div>
+            <div>Press space to pause the game.</div>
+            <div>Press B, Num0 or Esc to open Boss Mode.</div>
+            <div>Press any key in Boss Mode to exit.</div>
+
+            <button onclick="editBossModeURL()">Edit Boss Mode URL</button>
+        </div>
     </div>
-</div>
+</body>
 
-<script type="text/javascript" src="./snake.js"></script>
-<!-- <script type="text/javascript" src="./original.js"></script> -->
+<footer>
+    <script type="text/javascript" src="./snake.js"></script>
+    <!-- <script type="text/javascript" src="./original.js"></script> -->
+    <style>
+        .game {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 600px auto;
+            grid-column-gap: 32px;
+        }
 
-<style>
-    .game {
-        width: 100%;
-        display: grid;
-        grid-template-columns: 600px auto;
-        grid-column-gap: 32px;
-    }
+        .noscroll {
+            overflow: hidden;
+        }
 
-    button {
-        margin-top: 16px;
-    }
-</style>
+        button {
+            margin: 16px 0;
+        }
+
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 666;
+            background: white;
+        }
+    </style>
+</footer>
+
+</html>

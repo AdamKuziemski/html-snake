@@ -6,9 +6,11 @@ const startingSpeed = 8;
 const maxSpeed = 20;
 const canvas = document.getElementById('gc');
 const context = canvas.getContext('2d');
+const defaultbossModeURL = 'http://blog.cleancoder.com';
 
 let loopHandle = -1;
 let paused = false;
+let bossMode = false;
 
 function newLoop(speed) {
   clearInterval(loopHandle);
@@ -47,7 +49,7 @@ class Snake {
   }
 
   collidesWith(apple) {
-    return this.trail.filter(block => block.collidesWith(apple.tile)).length !== 0;
+    return [this.head, ...this.trail].filter(block => block.collidesWith(apple.tile)).length !== 0;
   }
 
   eatApple() {
@@ -62,26 +64,25 @@ class Snake {
     newLoop(this.speed);
   }
 
-  changeDirection(event) {
+  changeDirection(code) {
     if (this.hasChangedDirection) { // prevent suicides when pressing buttons too fast
       return;
     }
 
-    const code = event.code;
     if (code === 'ArrowLeft' && this.direction !== 'ArrowRight') {
-      this.velocity.x = -1; this.velocity.y = 0;
+      this.velocity = { x: -1, y: 0 };
       this.direction = 'ArrowLeft';
     }
     if (code === 'ArrowUp' && this.direction !== 'ArrowDown') {
-      this.velocity.x = 0; this.velocity.y = -1;
+      this.velocity = { x: 0, y: -1 };
       this.direction = 'ArrowUp';
     }
     if (code === 'ArrowRight' && this.direction !== 'ArrowLeft') {
-      this.velocity.x = 1; this.velocity.y = 0;
+      this.velocity = { x: 1, y: 0 };
       this.direction = 'ArrowRight';
     }
     if (code === 'ArrowDown' && this.direction !== 'ArrowUp') {
-      this.velocity.x = 0; this.velocity.y = 1;
+      this.velocity = { x: 0, y: 1 };
       this.direction = 'ArrowDown';
     }
 
@@ -114,6 +115,7 @@ class Snake {
   draw() {
     context.fillStyle = 'lime';
 
+    this.head.draw();
     this.trail.forEach(block => {
       block.draw();
 
@@ -164,6 +166,7 @@ class Scoreboard {
     ];
     this.score = 0;
     this.highScore = parseInt(localStorage.getItem('highScore') || '0', 10);
+    this.highScoreOwner = localStorage.getItem('highScoreOwner') || '';
   }
 
   increaseScore() {
@@ -173,7 +176,7 @@ class Scoreboard {
 
   draw() {
     this.board[0].textContent = `Score: ${this.score}`;
-    this.board[1].textContent = `Highest score: ${this.highScore}`;
+    this.board[1].textContent = `Highest score: ${this.highScore} by ${this.highScoreOwner}`;
   }
 
   reset() {
@@ -185,7 +188,10 @@ class Scoreboard {
   saveHighScore() {
     if (this.score > this.highScore) {
       this.highScore = this.score;
+      this.highScoreOwner = prompt(`What's your name?`, this.highScoreOwner);
+
       localStorage.setItem('highScore', '' + this.highScore);
+      localStorage.setItem('highScoreOwner', '' + this.highScoreOwner);
     }
     this.draw();
   }
@@ -193,6 +199,7 @@ class Scoreboard {
   clearHighScore() {
     this.highScore = 0;
     localStorage.setItem('highScore', '0');
+    localStorage.setItem('highScoreOwner', '');
     this.draw();
   }
 }
@@ -202,7 +209,7 @@ let apple = new Apple();
 let snake = new Snake();
 
 function game() {
-  if (paused) {
+  if (paused || bossMode) {
     return;
   }
 
@@ -220,10 +227,35 @@ function game() {
   apple.draw();
 }
 
-document.addEventListener('keydown', event => {
-  if (event.code === 'Space') {
+const bossModeURL = () => localStorage.getItem('bossModeURL') || defaultbossModeURL;
+
+const toggleBossMode = () => {
+  if (bossMode) {
+    document.body.removeChild(document.getElementById('boss-frame'));
+    document.body.classList.remove('noscroll');
+  } else {
+    const iframe = document.createElement('iframe');
+
+    iframe.id = 'boss-frame';
+    iframe.src = bossModeURL();
+
+    document.body.classList.add('noscroll');
+    document.body.appendChild(iframe);
+
+    iframe.contentDocument.addEventListener('keydown', () => toggleBossMode());
+  }
+
+  bossMode = !bossMode;
+}
+
+const editBossModeURL = () => localStorage.setItem('bossModeURL', prompt('Boss Mode URL:', bossModeURL()));
+
+document.addEventListener('keydown', ({ code }) => {
+  if (['KeyB', 'Numpad0', 'Escape'].includes(code)) {
+    toggleBossMode();
+  } else if (code === 'Space') {
     paused = !paused;
   } else {
-    snake.changeDirection(event);
+    snake.changeDirection(code);
   }
 });
