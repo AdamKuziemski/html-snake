@@ -190,8 +190,9 @@ class Scoreboard {
       this.highScore = this.score;
       localStorage.setItem('highScore', '' + this.highScore);
 
-      this.highScoreOwner = prompt(`What's your name?`, this.highScoreOwner);
-      if (!!this.highScoreOwner) {
+      const newHighScoreOwner = prompt(`What's your name?`, this.highScoreOwner);
+      if (!!newHighScoreOwner) {
+        this.highScoreOwner = newHighScoreOwner
         localStorage.setItem('highScoreOwner', '' + this.highScoreOwner);
       }
     }
