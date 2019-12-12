@@ -248,7 +248,14 @@ const toggleBossMode = () => {
   bossMode = !bossMode;
 }
 
-const editBossModeURL = () => localStorage.setItem('bossModeURL', prompt('Boss Mode URL:', bossModeURL()));
+const editBossModeURL = () => {
+  const currentUrl = bossModeURL();
+  const newUrl = prompt('Boss Mode URL:', currentUrl);
+
+  if (!!newUrl) {
+    localStorage.setItem('bossModeURL', newUrl);
+  }
+}
 
 document.addEventListener('keydown', ({ code }) => {
   if (['KeyB', 'Numpad0', 'Escape'].includes(code)) {
