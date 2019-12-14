@@ -246,10 +246,12 @@ const toggleBossMode = () => {
     document.body.appendChild(iframe);
 
     iframe.contentDocument.addEventListener('keydown', () => toggleBossMode());
+
+    window.history.pushState({boss: true}, '', '#');
   }
 
   bossMode = !bossMode;
-}
+};
 
 const editBossModeURL = () => {
   const currentUrl = bossModeURL();
@@ -258,7 +260,7 @@ const editBossModeURL = () => {
   if (!!newUrl) {
     localStorage.setItem('bossModeURL', newUrl);
   }
-}
+};
 
 document.addEventListener('keydown', ({ code }) => {
   if (['KeyB', 'Numpad0', 'Escape'].includes(code)) {
@@ -269,3 +271,9 @@ document.addEventListener('keydown', ({ code }) => {
     snake.changeDirection(code);
   }
 });
+
+window.addEventListener('popstate', () => {
+  if (bossMode) {
+    toggleBossMode();
+  }
+})
